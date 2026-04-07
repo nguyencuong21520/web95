@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "axios": "^1.14.0",
+    "express": "^5.2.1",
+    "json-server": "^0.17.4"
+  },
+  "name": "ls3_jsonserver_express",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch main.js",
+    "json-server": "json-server --watch data.json --port 3033",
+    "dev:all": "concurrently \"npm run json-server\" \"npm run dev\""
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
