@@ -1,9 +1,11 @@
 import express from 'express';
 import axios from 'axios';
-
+import { v4 as uuidv4 } from 'uuid';
 const app = express();
+app.use(express.json());
 const PORT = 3002;
 const JSON_SERVER_URL = 'http://localhost:3001';
+
 
 const getJsonServerData = async (path) => {
     try {
@@ -103,8 +105,22 @@ app.get("/products/price-range", async (req, res)=>{
 app.post("/customers", async (req, res)=>{
     try {
         const {name, email, age} = req.body;
-        const {ok, status, data} = await getJsonServerData(`/customers`);
-        if (!ok) return res.status(status).json({ error: "Failed to fetch customers" });
+        //validate request body
+        if (!name || !email || age === undefined) {
+            return res.status(400).json({ error: "name, email, age are required" });
+        }
+        //check if email already exists
+        const existingCustomer = await getJsonServerData(`/customers?email=${email}`);
+        if (existingCustomer.ok && existingCustomer.data.length > 0) {
+            return res.status(400).json({ error: "Email already exists" });
+        }
+        //create new customer
+        const createCustomer= await axios.post(`${JSON_SERVER_URL}/customers`, {id: uuidv4(), name, email, age});
+        if (createCustomer.status !== 201) {
+            return res.status(createCustomer.status).json({ error: "Failed to add customer" });
+        }
+        //return response
+        res.status(201).json({message: 'customer added successfully', data: createCustomer.data})
     } catch (error) {
         res.status(500).json({message: 'error adding customer', error: error.message})
     }

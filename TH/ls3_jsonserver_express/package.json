@@ -15,6 +15,7 @@
     "axios": "^1.14.0",
     "concurrently": "^9.2.1",
     "express": "^5.2.1",
-    "json-server": "^0.17.4"
+    "json-server": "^0.17.4",
+    "uuid": "^13.0.0"
   }
 }
