@@ -41,7 +41,32 @@ app.get("/customers/:id", async (req, res) =>{
         res.status(500).json({message: 'error fetching customer', error: error.message})
     }
 })
+//Get orders by customer id customers/:customerId/orders
+app.get("/customers/:customerId/orders", async (req, res)=>{
+    try {
+        const customerId = req.params.customerId
+        const {ok, status, data} = await getJsonServerData(`/orders?customerId=${customerId}`);
+        if (!ok) return res.status(status).json({ error: "Failed to fetch orders" });
+        res.json({message: 'orders fetched successfully', data: data})
 
+    } catch (error) {
+        res.status(500).json({message: 'error fetching orders', error: error.message})
+    }
+})
+
+//Get orders by high value
+app.get("/orders/highvalue", async (req, res)=>{
+    try {
+        //get all orders
+        const {ok, status, data} = await getJsonServerData(`/orders`);
+        if (!ok) return res.status(status).json({ error: "Failed to fetch orders" });
+        //filter orders by totalPrice > 10000000
+        const highValueOrders = data.filter(order => order.totalPrice > 10000000);
+        res.json({message: 'orders fetched successfully', data: highValueOrders})
+    } catch (error) {
+        res.status(500).json({message: 'error fetching orders', error: error.message})
+    }
+})
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 })
