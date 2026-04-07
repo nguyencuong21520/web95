@@ -67,6 +67,48 @@ app.get("/orders/highvalue", async (req, res)=>{
         res.status(500).json({message: 'error fetching orders', error: error.message})
     }
 })
+
+//Get products by price range
+//products/price-range?minPrice=5000000&maxPrice=10000000
+app.get("/products/price-range", async (req, res)=>{
+    try {
+        const { minPrice, maxPrice } = req.query;
+        const { ok, status, data: products } = await getJsonServerData(`/products`);
+        if (!ok) return res.status(status).json({ error: "Failed to fetch products" });
+        if(!minPrice && !maxPrice){
+            return res.json({ message: "products fetched successfully", data: products });
+        }
+
+        const min = minPrice  ? Number(minPrice) : null;
+        const max = maxPrice  ? Number(maxPrice) : null;
+
+        if(min && max){
+            const filteredProducts = products.filter(product => product.price >= min && product.price <= max);
+            return res.json({ message: "products fetched successfully", data: filteredProducts });
+        }
+        if(min && !max){
+            const filteredProducts = products.filter(product => product.price >= min);
+            return res.json({ message: "products fetched successfully", data: filteredProducts });
+        }
+        if(!min && max){
+            const filteredProducts = products.filter(product => product.price <= max);
+            return res.json({ message: "products fetched successfully", data: filteredProducts });
+        }
+        return res.json({ message: "products fetched successfully", data: products });
+    } catch (error) {
+        res.status(500).json({message: 'error fetching products', error: error.message})
+    }   
+})
+//Add new customer
+app.post("/customers", async (req, res)=>{
+    try {
+        const {name, email, age} = req.body;
+        const {ok, status, data} = await getJsonServerData(`/customers`);
+        if (!ok) return res.status(status).json({ error: "Failed to fetch customers" });
+    } catch (error) {
+        res.status(500).json({message: 'error adding customer', error: error.message})
+    }
+})
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 })
