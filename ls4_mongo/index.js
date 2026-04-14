@@ -1,12 +1,17 @@
 import express from 'express';
 import { connectDB } from './src/configs/db.js';
 
-import UserController from './src/controllers/user.controller.js';
-import ProductController from './src/controllers/product.controller.js';
+import userRouter from './src/router/user.router.js';
+import productRouter from './src/router/product.router.js';
+import logRequest from './src/middlewares/logRequest.js';
+import userLog from './src/middlewares/userLog.js';
+import productLog from './src/middlewares/productLog.js';
+import validate from './src/middlewares/validate.js';
 const app = express();
 const PORT = 3003
 
 app.use(express.json());
+app.use(logRequest);
 
 connectDB()
 
@@ -14,14 +19,9 @@ app.get('/', (req, res)=>{
     res.json({message: 'server is running'})
 })
 
-app.get('/users',UserController.findAll)
-app.get('/users/:id', UserController.findById)
-app.post('/users', UserController.create)
-app.put('/users/:id', UserController.update)
-app.delete('/users/:id', UserController.delete)
+app.use('/users',userLog, validate, userRouter)
+app.use('/products', productLog, productRouter)
 
-app.get('/products', ProductController.findAll)
-app.post('/products', ProductController.create)
 
 app.listen(PORT, ()=>{
     console.log(`server is running on port ${PORT}`)
