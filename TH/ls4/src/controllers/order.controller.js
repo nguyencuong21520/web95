@@ -1,4 +1,5 @@
 import Order from '../models/order.model.js';
+import Product from '../models/product.model.js';
 
 const OrderController = {
     findByCustomerId: async (req, res) =>{
@@ -12,15 +13,31 @@ const OrderController = {
     },
     create: async (req, res) =>{
         try {
-            // const { customerId, productId, quantity } = req.body;
-            //mock data
-            const order = {
-                customerId: "69de4c0a618ced4d6fab394d",
-                productId: "",
-                quantity: 2,
-                totalPrice: 100000
+            const {customerId, productId, quantity} = req.body;
+
+            const product = await Product.findById(productId)
+            if(!product){
+                return res.status(404).json({message: 'product not found'})
             }
-            await Order.create(order)
+
+            //check quantity
+            if(quantity > product.quantity){
+                return res.status(400).json({message: 'quantity exceeds available stock'})
+            }
+
+            // calculate total price
+            const totalPrice = product.price * quantity;
+
+            //create order
+            const order = await Order.create({customerId, productId, quantity, totalPrice})
+
+            if(!order){
+                return res.status(500).json({message: 'error creating order'})
+            }
+
+            //update product quantity
+            await Product.findByIdAndUpdate(productId, {quantity: product.quantity - quantity})
+
             res.status(201).json({message: 'order created successfully', data: order})
         } catch (error) {
             res.status(500).json({message: 'error creating order', error: error.message})
