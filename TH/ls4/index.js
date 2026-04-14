@@ -17,6 +17,21 @@
 
     app.use('/customers', customerRouter)
     app.use('/orders', orderRouter)
+
+
+    // lấy ra được order dự trên order ID
+    // Lấy ra được product dự trên product ID
+    // check xem update quantity là tăng hay giảm
+
+    // Nếu Tăng:
+    // - check xem product quantity có đủ không
+    // - nếu đủ thì update quantity
+    // - update lại product quantity
+
+    // // Nếu Giảm:
+    // - update lại order quantity
+    // - update lại product quantity
+
     app.listen(PORT, ()=>{
         console.log(`server is running on port ${PORT}`)
     })
