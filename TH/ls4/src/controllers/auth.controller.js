@@ -1,3 +1,5 @@
+import User from '../models/user.model.js';
+
 const AuthController = {
     login: async (req, res) => {
         try {
