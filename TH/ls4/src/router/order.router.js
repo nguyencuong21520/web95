@@ -5,5 +5,6 @@ const orderRouter = Router();
 
 orderRouter.post('/', orderValidateMiddleware, OrderController.create)
 orderRouter.get('/highvalue', OrderController.getHighValue)
+orderRouter.put('/:orderId', OrderController.updateQuantity)
 
 export default orderRouter;
