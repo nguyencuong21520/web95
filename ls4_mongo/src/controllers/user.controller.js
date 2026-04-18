@@ -44,6 +44,21 @@ const UserController = {
         } catch (error) {
             res.status(500).json({message: 'error deleting user', error: error.message})
         }
+    },
+    login: async (req, res) =>{
+        try {
+            const { username, password } = req.body;
+            const user = await User.findOne({ username, password })
+            if(!user){
+                return res.status(401).json({message: 'Invalid username or password'})
+            }
+            //convert user to object
+            const userObject = user.toObject();
+            const token = userObject.username + '-' + userObject.role + '-' + "ilovemindx"
+            res.status(200).json({message: 'user logged in successfully', token: token})
+        } catch (error) {
+            res.status(500).json({message: 'error logging in', error: error.message})
+        }
     }
 }
 

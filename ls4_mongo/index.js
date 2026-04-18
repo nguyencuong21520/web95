@@ -3,24 +3,23 @@ import { connectDB } from './src/configs/db.js';
 
 import userRouter from './src/router/user.router.js';
 import productRouter from './src/router/product.router.js';
-import logRequest from './src/middlewares/logRequest.js';
-import userLog from './src/middlewares/userLog.js';
 import productLog from './src/middlewares/productLog.js';
-import validate from './src/middlewares/validate.js';
+import authMiddleware from './src/middlewares/auth.middlewares.js';
 const app = express();
 const PORT = 3003
 
-app.use(express.json());
-app.use(logRequest);
-
 connectDB()
+
+app.use(express.json());
+// 
+
 
 app.get('/', (req, res)=>{
     res.json({message: 'server is running'})
 })
 
-app.use('/users',userLog, validate, userRouter)
-app.use('/products', productLog, productRouter)
+app.use('/users', userRouter)
+app.use('/products', authMiddleware.authenticate, authMiddleware.authorize, productRouter)
 
 
 app.listen(PORT, ()=>{
