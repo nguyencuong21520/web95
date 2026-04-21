@@ -10,5 +10,6 @@ userRouter.get('/:id', authMiddleware.authenticate, UserController.findById)
 userRouter.post('/', UserController.create)
 userRouter.put('/:id', UserController.update)
 userRouter.delete('/:id', UserController.delete)
+userRouter.post('/register', UserController.register)
 
 export default userRouter;

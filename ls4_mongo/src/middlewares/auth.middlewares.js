@@ -1,9 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
 const authMiddleware= {
     authenticate: (req, res, next) => {
         try {
             const token = req.body.token
             const [username, role, secret] = token.split('-')
-            if(secret == "ilovemindx"){
+            if(secret == process.env.JWT_SECRET){
                 next()
                 return
             }
@@ -24,8 +26,7 @@ const authMiddleware= {
         } catch (error) {
             return res.status(500).json({message: 'error authorizing', error: error.message})
         }
-    }
-       
+    }   
 }
 
 export default authMiddleware;

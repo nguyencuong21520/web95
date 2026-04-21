@@ -1,4 +1,5 @@
 import User from '../models/user.model.js';
+import bcrypt from 'bcrypt';
 
 const AuthController = {
     login: async (req, res) => {
@@ -17,13 +18,23 @@ const AuthController = {
     },
     register: async (req, res) => {
         try {
-            const { username, password, role } = req.body;
-            //check if user already exists
-            const existingUser = await User.findOne({ username })
-            if (existingUser) {
-                return res.status(400).json({ message: 'User already exists' })
+            const { username, password, role, email } = req.body;
+
+            if(!username || !password || !role || !email) {
+                return res.status(400).json({ message: 'username, password, role, email are required' })
             }
-            const user = await User.create({ username, password, role })
+
+            //check if email already exists
+            const existingUser = await User.findOne({ email })
+            if (existingUser) {
+                return res.status(400).json({ message: 'Email already exists' })
+            }
+
+            //generate salt
+            const salt = bcrypt.genSaltSync(10)
+            const hashedPassword = bcrypt.hashSync(password, salt)
+           
+            const user = await User.create({ username, password: hashedPassword, role, email, salt})
             return res.status(201).json({ message: 'user registered successfully', data: user })
         } catch (error) {
             res.status(500).json({ message: 'error registering', error: error.message })

@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
 
-export const connectDB = async () => {
+export const connectDB = async () => {;
     try {
-        await mongoose.connect('mongodb://localhost:27017/ls4_mongo')
+        await mongoose.connect(process.env.MONGO_URL)
         console.log('connected to mongodb')
     } catch (error) {
         console.log(error)
