@@ -1,10 +1,18 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 const authMiddleware = {
     authenticate: async (req, res, next) =>{
         try {
             const token = req.headers.mindx_authorization
-            const [username, role, secret] = token.split('-')
-            if(secret !== "ilovemindx"){
+            const [username, role, id, secret] = token.split('-')
+            if(secret !== process.env.SECRET_KEY){
                 return res.status(401).json({message: 'Unauthorized'})
+            }
+            req.userInfo = {
+                username,
+                role,
+                id
             }
             next();
         } catch (error) {

@@ -105,6 +105,21 @@ const OrderController = {
         } catch (error) {
             res.status(500).json({message: 'error updating order', error: error.message})
         }
+    },
+    getOrdersByCustomerId: async (req, res) =>{
+        try {
+            const { customerId } = req.params;
+            const userId = req.userInfo.id;
+            const userRole = req.userInfo.role;
+
+            if(userId !==customerId && userRole !== 'admin'){
+                return res.status(403).json({message: 'Forbidden'})
+            }
+            const orders = await Order.find({ customerId })
+            res.status(200).json({message: 'orders fetched successfully', data: orders})
+        } catch (error) {
+            res.status(500).json({message: 'error fetching orders', error: error.message})
+        }
     }
 }
 

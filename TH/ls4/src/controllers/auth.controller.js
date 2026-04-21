@@ -7,7 +7,7 @@ const AuthController = {
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
-            const user = await User.findOne({ email, password })
+            const user = await User.findOne({ email })
             if (!user) {
                 return res.status(401).json({ message: 'Invalid username or password' })
             }
@@ -18,7 +18,7 @@ const AuthController = {
                 return res.status(401).json({ message: 'Invalid username or password' })
             }
 
-            const token = user.username + '-' + user.role + '-' + process.env.SECRET_KEY
+            const token = user.username + '-' + user.role + '-' + user.id + '-' + process.env.SECRET_KEY
             return res.status(200).json({ message: 'user logged in successfully', token: token })
 
         } catch (error) {
