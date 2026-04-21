@@ -1,15 +1,24 @@
 import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const AuthController = {
     login: async (req, res) => {
         try {
-            const { username, password } = req.body;
-            const user = await User.findOne({ username, password })
+            const { email, password } = req.body;
+            const user = await User.findOne({ email, password })
             if (!user) {
                 return res.status(401).json({ message: 'Invalid username or password' })
             }
-            const token = user.username + '-' + user.role + '-' + "ilovemindx"
+
+            const hashedPassword = bcrypt.hashSync(password, user.salt)
+
+            if(hashedPassword !== user.password) {
+                return res.status(401).json({ message: 'Invalid username or password' })
+            }
+
+            const token = user.username + '-' + user.role + '-' + process.env.SECRET_KEY
             return res.status(200).json({ message: 'user logged in successfully', token: token })
 
         } catch (error) {
