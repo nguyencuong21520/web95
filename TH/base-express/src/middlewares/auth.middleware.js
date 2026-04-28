@@ -5,12 +5,12 @@ const authMiddleware = {
     authenticate: async (req, res, next) =>{
         try {
             const token = req.headers.mindx_authorization
-            const [username, role, id, secret] = token.split('-')
+            const [email, role, id, secret] = token.split('-')
             if(secret !== process.env.SECRET_KEY){
                 return res.status(401).json({message: 'Unauthorized'})
             }
             req.userInfo = {
-                username,
+                email,
                 role,
                 id
             }

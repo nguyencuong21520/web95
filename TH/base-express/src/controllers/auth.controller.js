@@ -1,4 +1,4 @@
-import User from '../models/user.model.js';
+import Account from '../models/account.model.js';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -7,19 +7,19 @@ const AuthController = {
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
-            const user = await User.findOne({ email })
-            if (!user) {
-                return res.status(401).json({ message: 'Invalid username or password' })
+            const account = await Account.findOne({ email })
+            if (!account) {
+                return res.status(401).json({ message: 'Invalid email or password' })
             }
 
-            const hashedPassword = bcrypt.hashSync(password, user.salt)
+            const isPasswordValid = bcrypt.compareSync(password, account.password)
 
-            if(hashedPassword !== user.password) {
-                return res.status(401).json({ message: 'Invalid username or password' })
+            if(!isPasswordValid) {
+                return res.status(401).json({ message: 'Invalid email or password' })
             }
 
-            const token = user.username + '-' + user.role + '-' + user.id + '-' + process.env.SECRET_KEY
-            return res.status(200).json({ message: 'user logged in successfully', token: token })
+            const token = account.email + '-' + account.role + '-' + account.id + '-' + process.env.SECRET_KEY
+            return res.status(200).json({ message: 'logged in successfully', token: token })
 
         } catch (error) {
             res.status(500).json({ message: 'error logging in', error: error.message })
@@ -27,24 +27,22 @@ const AuthController = {
     },
     register: async (req, res) => {
         try {
-            const { username, password, role, email } = req.body;
+            const { email, password, role } = req.body;
 
-            if(!username || !password || !role || !email) {
-                return res.status(400).json({ message: 'username, password, role, email are required' })
+            if(!email || !password) {
+                return res.status(400).json({ message: 'email and password are required' })
             }
 
             //check if email already exists
-            const existingUser = await User.findOne({ email })
-            if (existingUser) {
+            const existingAccount = await Account.findOne({ email })
+            if (existingAccount) {
                 return res.status(400).json({ message: 'Email already exists' })
             }
 
-            //generate salt
-            const salt = bcrypt.genSaltSync(10)
-            const hashedPassword = bcrypt.hashSync(password, salt)
+            const hashedPassword = bcrypt.hashSync(password, 10)
            
-            const user = await User.create({ username, password: hashedPassword, role, email, salt})
-            return res.status(201).json({ message: 'user registered successfully', data: user })
+            const account = await Account.create({ email, password: hashedPassword, role: role || 'CUSTOMER' })
+            return res.status(201).json({ message: 'account registered successfully', data: account })
         } catch (error) {
             res.status(500).json({ message: 'error registering', error: error.message })
         }
