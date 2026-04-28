@@ -13,7 +13,8 @@ const OrderController = {
     },
     create: async (req, res) =>{
         try {
-            const {customerId, productId, quantity} = req.body;
+            const { productId, quantity} = req.body;
+            const customerId = req.userInfo.id;
 
             const product = await Product.findById(productId)
             if(!product){
