@@ -14,6 +14,9 @@ const employeeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Manager'
     },
+    avatar: {
+        type: String
+    },
     department: {
         type: String
     },

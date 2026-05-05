@@ -5,6 +5,7 @@ import Employee from '../models/employee.model.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { uploadBufferToCloudinary } from '../middlewares/uploadfile.middleware.js';
 dotenv.config();
 
 const AuthController = {
@@ -63,6 +64,89 @@ const AuthController = {
             });
         } catch (error) {
             res.status(500).json({ message: 'Error creating profile', error: error.message });
+        }
+    },
+    updateProfile: async (req, res) => {
+        try {
+            const { id, role } = req.userInfo;
+            const { email, name, phone, address, department, managerId } = req.body;
+            const avatarFile = req.file;
+
+            const account = await Account.findById(id);
+            if (!account) {
+                return res.status(404).json({ message: 'Account not found' });
+            }
+
+            let profile = null;
+            let avatarUrl;
+
+            if (avatarFile) {
+                avatarUrl = await uploadBufferToCloudinary(avatarFile, {
+                    folder: `base-express/avatars/${role.toLowerCase()}`,
+                    public_id: `${id}-${Date.now()}`
+                });
+            }
+
+            if (role === 'CUSTOMER') {
+                const updateData = {};
+                if (name !== undefined) updateData.name = name;
+                if (phone !== undefined) updateData.phone = phone;
+                if (address !== undefined) updateData.address = address;
+                if (email !== undefined) updateData.email = email;
+                if (avatarUrl !== undefined) updateData.avatar = avatarUrl;
+
+                profile = await Customer.findOneAndUpdate(
+                    { accountId: id },
+                    { $set: updateData },
+                    { new: true, runValidators: true }
+                );
+            } else if (role === 'MANAGER') {
+                const updateData = {};
+                if (name !== undefined) updateData.name = name;
+                if (phone !== undefined) updateData.phone = phone;
+                if (department !== undefined) updateData.department = department;
+                if (email !== undefined) updateData.email = email;
+                if (avatarUrl !== undefined) updateData.avatar = avatarUrl;
+
+                profile = await Manager.findOneAndUpdate(
+                    { accountId: id },
+                    { $set: updateData },
+                    { new: true, runValidators: true }
+                );
+            } else if (role === 'EMPLOYEE') {
+                const updateData = {};
+                if (name !== undefined) updateData.name = name;
+                if (phone !== undefined) updateData.phone = phone;
+                if (department !== undefined) updateData.department = department;
+                if (managerId !== undefined) updateData.managerId = managerId;
+                if (email !== undefined) updateData.email = email;
+                if (avatarUrl !== undefined) updateData.avatar = avatarUrl;
+
+                profile = await Employee.findOneAndUpdate(
+                    { accountId: id },
+                    { $set: updateData },
+                    { new: true, runValidators: true }
+                );
+            }
+
+            if (!profile) {
+                return res.status(404).json({ message: 'Profile not found. Please create profile first' });
+            }
+
+            return res.status(200).json({
+                message: 'Profile updated successfully',
+                data: {
+                    account: {
+                        _id: account._id,
+                        email: account.email,
+                        role: account.role,
+                        isActive: account.isActive
+                    },
+                    profile
+                }
+            });
+        } catch (error) {
+            res.status(500).json({ message: 'Error updating profile', error: error.message });
         }
     },
     login: async (req, res) => {

@@ -10,6 +10,9 @@ const managerSchema = new mongoose.Schema({
     phone: {
         type: String
     },
+    avatar: {
+        type: String
+    },
     department: {
         type: String
     },

@@ -13,6 +13,9 @@ const customerSchema = new mongoose.Schema({
     address: {
         type: String
     },
+    avatar: {
+        type: String
+    },
     accountId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Account'
