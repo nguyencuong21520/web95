@@ -23,6 +23,7 @@ app.use('/auth', authRouter)
 
 // example: app.use('/protected-route', authMiddleware.authenticate, protectedRouter)
 
+
 app.listen(PORT, ()=>{
     console.log(`server is running on port ${PORT}`)
 })
